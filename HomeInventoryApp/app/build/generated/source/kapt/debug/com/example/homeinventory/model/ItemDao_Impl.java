@@ -13,6 +13,7 @@ import androidx.room.util.DBUtil;
 import androidx.sqlite.db.SupportSQLiteStatement;
 import java.lang.Class;
 import java.lang.Exception;
+import java.lang.Integer;
 import java.lang.Object;
 import java.lang.Override;
 import java.lang.String;
@@ -41,7 +42,7 @@ public final class ItemDao_Impl implements ItemDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR REPLACE INTO `items` (`id`,`name`,`description`,`roomId`,`quantity`,`category`,`imageUri`,`icon`) VALUES (nullif(?, 0),?,?,?,?,?,?,?)";
+        return "INSERT OR REPLACE INTO `items` (`id`,`name`,`description`,`roomId`,`quantity`,`category`,`imageUri`,`icon`,`gridX`,`gridY`,`width`,`height`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?,?,?,?)";
       }
 
       @Override
@@ -75,6 +76,18 @@ public final class ItemDao_Impl implements ItemDao {
         } else {
           statement.bindString(8, entity.getIcon());
         }
+        if (entity.getGridX() == null) {
+          statement.bindNull(9);
+        } else {
+          statement.bindLong(9, entity.getGridX());
+        }
+        if (entity.getGridY() == null) {
+          statement.bindNull(10);
+        } else {
+          statement.bindLong(10, entity.getGridY());
+        }
+        statement.bindLong(11, entity.getWidth());
+        statement.bindLong(12, entity.getHeight());
       }
     };
     this.__deletionAdapterOfItem = new EntityDeletionOrUpdateAdapter<Item>(__db) {
@@ -94,7 +107,7 @@ public final class ItemDao_Impl implements ItemDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "UPDATE OR ABORT `items` SET `id` = ?,`name` = ?,`description` = ?,`roomId` = ?,`quantity` = ?,`category` = ?,`imageUri` = ?,`icon` = ? WHERE `id` = ?";
+        return "UPDATE OR ABORT `items` SET `id` = ?,`name` = ?,`description` = ?,`roomId` = ?,`quantity` = ?,`category` = ?,`imageUri` = ?,`icon` = ?,`gridX` = ?,`gridY` = ?,`width` = ?,`height` = ? WHERE `id` = ?";
       }
 
       @Override
@@ -128,7 +141,19 @@ public final class ItemDao_Impl implements ItemDao {
         } else {
           statement.bindString(8, entity.getIcon());
         }
-        statement.bindLong(9, entity.getId());
+        if (entity.getGridX() == null) {
+          statement.bindNull(9);
+        } else {
+          statement.bindLong(9, entity.getGridX());
+        }
+        if (entity.getGridY() == null) {
+          statement.bindNull(10);
+        } else {
+          statement.bindLong(10, entity.getGridY());
+        }
+        statement.bindLong(11, entity.getWidth());
+        statement.bindLong(12, entity.getHeight());
+        statement.bindLong(13, entity.getId());
       }
     };
   }
@@ -205,6 +230,10 @@ public final class ItemDao_Impl implements ItemDao {
           final int _cursorIndexOfCategory = CursorUtil.getColumnIndexOrThrow(_cursor, "category");
           final int _cursorIndexOfImageUri = CursorUtil.getColumnIndexOrThrow(_cursor, "imageUri");
           final int _cursorIndexOfIcon = CursorUtil.getColumnIndexOrThrow(_cursor, "icon");
+          final int _cursorIndexOfGridX = CursorUtil.getColumnIndexOrThrow(_cursor, "gridX");
+          final int _cursorIndexOfGridY = CursorUtil.getColumnIndexOrThrow(_cursor, "gridY");
+          final int _cursorIndexOfWidth = CursorUtil.getColumnIndexOrThrow(_cursor, "width");
+          final int _cursorIndexOfHeight = CursorUtil.getColumnIndexOrThrow(_cursor, "height");
           final List<Item> _result = new ArrayList<Item>(_cursor.getCount());
           while (_cursor.moveToNext()) {
             final Item _item;
@@ -244,7 +273,23 @@ public final class ItemDao_Impl implements ItemDao {
             } else {
               _tmpIcon = _cursor.getString(_cursorIndexOfIcon);
             }
-            _item = new Item(_tmpId,_tmpName,_tmpDescription,_tmpRoomId,_tmpQuantity,_tmpCategory,_tmpImageUri,_tmpIcon);
+            final Integer _tmpGridX;
+            if (_cursor.isNull(_cursorIndexOfGridX)) {
+              _tmpGridX = null;
+            } else {
+              _tmpGridX = _cursor.getInt(_cursorIndexOfGridX);
+            }
+            final Integer _tmpGridY;
+            if (_cursor.isNull(_cursorIndexOfGridY)) {
+              _tmpGridY = null;
+            } else {
+              _tmpGridY = _cursor.getInt(_cursorIndexOfGridY);
+            }
+            final int _tmpWidth;
+            _tmpWidth = _cursor.getInt(_cursorIndexOfWidth);
+            final int _tmpHeight;
+            _tmpHeight = _cursor.getInt(_cursorIndexOfHeight);
+            _item = new Item(_tmpId,_tmpName,_tmpDescription,_tmpRoomId,_tmpQuantity,_tmpCategory,_tmpImageUri,_tmpIcon,_tmpGridX,_tmpGridY,_tmpWidth,_tmpHeight);
             _result.add(_item);
           }
           return _result;
@@ -280,6 +325,10 @@ public final class ItemDao_Impl implements ItemDao {
           final int _cursorIndexOfCategory = CursorUtil.getColumnIndexOrThrow(_cursor, "category");
           final int _cursorIndexOfImageUri = CursorUtil.getColumnIndexOrThrow(_cursor, "imageUri");
           final int _cursorIndexOfIcon = CursorUtil.getColumnIndexOrThrow(_cursor, "icon");
+          final int _cursorIndexOfGridX = CursorUtil.getColumnIndexOrThrow(_cursor, "gridX");
+          final int _cursorIndexOfGridY = CursorUtil.getColumnIndexOrThrow(_cursor, "gridY");
+          final int _cursorIndexOfWidth = CursorUtil.getColumnIndexOrThrow(_cursor, "width");
+          final int _cursorIndexOfHeight = CursorUtil.getColumnIndexOrThrow(_cursor, "height");
           final Item _result;
           if (_cursor.moveToFirst()) {
             final int _tmpId;
@@ -318,7 +367,23 @@ public final class ItemDao_Impl implements ItemDao {
             } else {
               _tmpIcon = _cursor.getString(_cursorIndexOfIcon);
             }
-            _result = new Item(_tmpId,_tmpName,_tmpDescription,_tmpRoomId,_tmpQuantity,_tmpCategory,_tmpImageUri,_tmpIcon);
+            final Integer _tmpGridX;
+            if (_cursor.isNull(_cursorIndexOfGridX)) {
+              _tmpGridX = null;
+            } else {
+              _tmpGridX = _cursor.getInt(_cursorIndexOfGridX);
+            }
+            final Integer _tmpGridY;
+            if (_cursor.isNull(_cursorIndexOfGridY)) {
+              _tmpGridY = null;
+            } else {
+              _tmpGridY = _cursor.getInt(_cursorIndexOfGridY);
+            }
+            final int _tmpWidth;
+            _tmpWidth = _cursor.getInt(_cursorIndexOfWidth);
+            final int _tmpHeight;
+            _tmpHeight = _cursor.getInt(_cursorIndexOfHeight);
+            _result = new Item(_tmpId,_tmpName,_tmpDescription,_tmpRoomId,_tmpQuantity,_tmpCategory,_tmpImageUri,_tmpIcon,_tmpGridX,_tmpGridY,_tmpWidth,_tmpHeight);
           } else {
             _result = null;
           }

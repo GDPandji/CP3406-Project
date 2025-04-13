@@ -21,7 +21,11 @@ data class Item(
     val quantity: Int = 1,
     val category: String = "",
     val imageUri: String? = null,
-    val icon: String = "🔧" // default emoji
+    val icon: String = "🔧", // default emoji
+    val gridX: Int? = null,  // optional grid X position
+    val gridY: Int? = null,   // optional grid Y position
+    val width: Int = 1,   // default
+    val height: Int = 1   // default
 )
 
 data class RoomWithItems(

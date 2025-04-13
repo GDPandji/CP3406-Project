@@ -9,7 +9,7 @@ import com.example.homeinventory.model.ItemDao
 import com.example.homeinventory.model.RoomDao
 import com.example.homeinventory.model.RoomEntity
 
-@Database(entities = [Item::class, RoomEntity::class], version = 6, exportSchema = false)
+@Database(entities = [Item::class, RoomEntity::class], version = 9, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun itemDao(): ItemDao

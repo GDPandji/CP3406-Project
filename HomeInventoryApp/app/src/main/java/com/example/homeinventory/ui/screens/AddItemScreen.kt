@@ -10,6 +10,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -17,7 +18,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
@@ -41,6 +41,8 @@ fun AddItemScreen(
     val itemQuantity by viewModel.itemQuantity.collectAsState()
     val itemCategory by viewModel.itemCategory.collectAsState()
     val itemIcon by viewModel.itemIcon.collectAsState()
+    val itemWidth by viewModel.itemWidth.collectAsState()
+    val itemHeight by viewModel.itemHeight.collectAsState()
 
     var expanded by remember { mutableStateOf(false) }
     var showAddRoomDialog by remember { mutableStateOf(false) }
@@ -48,7 +50,6 @@ fun AddItemScreen(
 
     val selectedRoomName = allRooms.firstOrNull { it.id == itemRoomId }?.name ?: "Select Room"
 
-    // Reminder and Image picker
     val imageUri = remember { mutableStateOf<Uri?>(null) }
     val imagePicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) {
         imageUri.value = it
@@ -57,180 +58,198 @@ fun AddItemScreen(
     val calendar = remember { Calendar.getInstance() }
     val selectedDateTime = remember { mutableStateOf<Long?>(null) }
 
-    // Emoji picker
-    val emojiOptions = listOf(
-        "🔧", "🪑", "🛏️", "🧹", "🍽️", "📦", "📚", "🖼️", "🎒", "🧥",
-        "🧺", "🧼", "🖥️", "🕯️", "🪞", "🧯", "🚪", "🚽", "🪠", "🛁",
-        "🪒", "🪜", "🧻", "📺", "📷", "🎮", "🕹️", "🔋", "🔌", "🧰",
-        "🔑", "🛠️", "🧲", "💡", "🔦", "🧪", "🧴", "🧽", "🪣", "🪤",
-        "🧊", "🪙", "🪡", "🧵", "🖊️", "📐", "🪛", "🧯", "🔨", "🪚"
-    )
+    val emojiOptions = listOf("🔧", "🪑", "🛏️", "🧹", "🍽️", "📦", "📚", "🖼️", "🎒", "🧥", "🧺", "🧼")
     var emojiMenuExpanded by remember { mutableStateOf(false) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
+    LazyColumn(
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = Modifier.fillMaxSize()
     ) {
-        Text("Add Item", style = MaterialTheme.typography.headlineSmall)
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value = itemName,
-            onValueChange = { viewModel.updateItemName(it) },
-            label = { Text("Item Name") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value = itemDescription,
-            onValueChange = { viewModel.updateItemDescription(it) },
-            label = { Text("Description") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text("Quantity", style = MaterialTheme.typography.bodyMedium)
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Button(onClick = { viewModel.decreaseQuantity() }, enabled = itemQuantity > 1) { Text("-") }
-            Text(text = itemQuantity.toString(), modifier = Modifier.padding(horizontal = 16.dp))
-            Button(onClick = { viewModel.increaseQuantity() }) { Text("+") }
+        item {
+            Text("Add Item", style = MaterialTheme.typography.headlineSmall)
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value = itemCategory,
-            onValueChange = { viewModel.updateItemCategory(it) },
-            label = { Text("Category / Type") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text("Room", style = MaterialTheme.typography.bodySmall)
-        Box(modifier = Modifier.fillMaxWidth().clickable { expanded = true }.padding(8.dp)) {
-            Text(text = selectedRoomName)
-        }
-
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            allRooms.forEach { room ->
-                DropdownMenuItem(
-                    text = { Text(room.name) },
-                    onClick = {
-                        viewModel.updateItemRoomId(room.id)
-                        expanded = false
-                    }
-                )
-            }
-            Divider()
-            DropdownMenuItem(
-                text = { Text("➕ Add New Room") },
-                onClick = {
-                    expanded = false
-                    showAddRoomDialog = true
-                }
+        item {
+            OutlinedTextField(
+                value = itemName,
+                onValueChange = viewModel::updateItemName,
+                label = { Text("Item Name") },
+                modifier = Modifier.fillMaxWidth()
             )
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text("Choose Emoji Icon: $itemIcon", modifier = Modifier.clickable { emojiMenuExpanded = true })
-
-        DropdownMenu(expanded = emojiMenuExpanded, onDismissRequest = { emojiMenuExpanded = false }) {
-            emojiOptions.forEach { emoji ->
-                DropdownMenuItem(
-                    text = { Text(emoji) },
-                    onClick = {
-                        viewModel.updateItemIcon(emoji)
-                        emojiMenuExpanded = false
-                    }
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Button(onClick = { imagePicker.launch("image/*") }) {
-            Text("Select Image")
-        }
-
-        imageUri.value?.let {
-            Image(
-                painter = rememberAsyncImagePainter(it),
-                contentDescription = "Item Image",
-                modifier = Modifier.size(200.dp).padding(top = 8.dp)
+        item {
+            OutlinedTextField(
+                value = itemDescription,
+                onValueChange = viewModel::updateItemDescription,
+                label = { Text("Description") },
+                modifier = Modifier.fillMaxWidth()
             )
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Button(onClick = {
-            val now = Calendar.getInstance()
-            DatePickerDialog(context, { _, y, m, d ->
-                TimePickerDialog(context, { _, h, min ->
-                    calendar.set(y, m, d, h, min, 0)
-                    selectedDateTime.value = calendar.timeInMillis
-                }, now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE), false).show()
-            }, now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH)).show()
-        }) {
-            Text("Set Reminder Date")
+        item {
+            Text("Quantity", style = MaterialTheme.typography.bodyMedium)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Button(onClick = { viewModel.decreaseQuantity() }, enabled = itemQuantity > 1) { Text("-") }
+                Text(itemQuantity.toString(), modifier = Modifier.padding(horizontal = 16.dp))
+                Button(onClick = { viewModel.increaseQuantity() }) { Text("+") }
+            }
         }
 
-        selectedDateTime.value?.let {
-            Text("Reminder: ${SimpleDateFormat("yyyy-MM-dd HH:mm").format(Date(it))}")
+        item {
+            OutlinedTextField(
+                value = itemCategory,
+                onValueChange = viewModel::updateItemCategory,
+                label = { Text("Category / Type") },
+                modifier = Modifier.fillMaxWidth()
+            )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        item {
+            Text("Room")
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { expanded = true }
+                    .padding(8.dp)
+            ) {
+                Text(selectedRoomName)
+            }
 
-        val isValid = itemName.isNotBlank() && itemDescription.isNotBlank() &&
-                itemRoomId != 0 && itemCategory.isNotBlank()
-
-        Button(
-            onClick = {
-                val uriString = imageUri.value?.toString()
-                viewModel.addItem(
-                    name = itemName,
-                    description = itemDescription,
-                    roomId = itemRoomId,
-                    quantity = itemQuantity,
-                    category = itemCategory,
-                    imageUri = uriString
-                )
-
-                selectedDateTime.value?.let { millis ->
-                    ReminderScheduler.scheduleReminder(
-                        context = context,
-                        triggerTimeMillis = millis,
-                        title = "Reminder: $itemName",
-                        message = "Time to reorganize or retrieve it!"
+            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                allRooms.forEach { room ->
+                    DropdownMenuItem(
+                        text = { Text(room.name) },
+                        onClick = {
+                            viewModel.updateItemRoomId(room.id)
+                            expanded = false
+                        }
                     )
                 }
-
-                navController.navigate(Screen.Home.name)
-            },
-            enabled = isValid,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Save")
+                Divider()
+                DropdownMenuItem(
+                    text = { Text("➕ Add New Room") },
+                    onClick = {
+                        expanded = false
+                        showAddRoomDialog = true
+                    }
+                )
+            }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        item {
+            Text("Choose Emoji Icon: $itemIcon", modifier = Modifier.clickable { emojiMenuExpanded = true })
 
-        Button(
-            onClick = {
-                navController.navigate(Screen.Home.name) {
-                    popUpTo(Screen.Home.name) { inclusive = true }
-                    launchSingleTop = true
+            DropdownMenu(expanded = emojiMenuExpanded, onDismissRequest = { emojiMenuExpanded = false }) {
+                emojiOptions.forEach { emoji ->
+                    DropdownMenuItem(
+                        text = { Text(emoji) },
+                        onClick = {
+                            viewModel.updateItemIcon(emoji)
+                            emojiMenuExpanded = false
+                        }
+                    )
                 }
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Cancel")
+            }
+        }
+
+        item {
+            OutlinedTextField(
+                value = itemWidth.toString(),
+                onValueChange = { viewModel.updateItemWidth(it.toIntOrNull() ?: 1) },
+                label = { Text("Width (grid cells)") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            )
+        }
+
+        item {
+            OutlinedTextField(
+                value = itemHeight.toString(),
+                onValueChange = { viewModel.updateItemHeight(it.toIntOrNull() ?: 1) },
+                label = { Text("Height (grid cells)") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            )
+        }
+
+        item {
+            Button(onClick = { imagePicker.launch("image/*") }) {
+                Text("Select Image")
+            }
+
+            imageUri.value?.let {
+                Image(
+                    painter = rememberAsyncImagePainter(it),
+                    contentDescription = "Item Image",
+                    modifier = Modifier
+                        .size(200.dp)
+                        .padding(top = 8.dp)
+                )
+            }
+        }
+
+        item {
+            Button(onClick = {
+                val now = Calendar.getInstance()
+                DatePickerDialog(context, { _, y, m, d ->
+                    TimePickerDialog(context, { _, h, min ->
+                        calendar.set(y, m, d, h, min, 0)
+                        selectedDateTime.value = calendar.timeInMillis
+                    }, now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE), false).show()
+                }, now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH)).show()
+            }) {
+                Text("Set Reminder Date")
+            }
+
+            selectedDateTime.value?.let {
+                Text("Reminder: ${SimpleDateFormat("yyyy-MM-dd HH:mm").format(Date(it))}")
+            }
+        }
+
+        item {
+            val isValid = itemName.isNotBlank() && itemDescription.isNotBlank() && itemRoomId != 0 && itemCategory.isNotBlank()
+
+            Button(
+                onClick = {
+                    viewModel.addItem(
+                        name = itemName,
+                        description = itemDescription,
+                        roomId = itemRoomId,
+                        quantity = itemQuantity,
+                        category = itemCategory,
+                        imageUri = imageUri.value?.toString()
+                    )
+
+                    selectedDateTime.value?.let { millis ->
+                        ReminderScheduler.scheduleReminder(
+                            context,
+                            millis,
+                            "Reminder: $itemName",
+                            "Time to reorganize or retrieve it!"
+                        )
+                    }
+
+                    navController.navigate(Screen.Home.name)
+                },
+                enabled = isValid,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Save")
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Button(
+                onClick = {
+                    navController.navigate(Screen.Home.name) {
+                        popUpTo(Screen.Home.name) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Cancel")
+            }
         }
     }
 
@@ -250,19 +269,16 @@ fun AddItemScreen(
                     viewModel.addRoom(newRoomName)
                     newRoomName = ""
                     showAddRoomDialog = false
-                }) {
-                    Text("Add")
-                }
+                }) { Text("Add") }
             },
             dismissButton = {
                 TextButton(onClick = {
                     newRoomName = ""
                     showAddRoomDialog = false
-                }) {
-                    Text("Cancel")
-                }
+                }) { Text("Cancel") }
             }
         )
     }
 }
+
 

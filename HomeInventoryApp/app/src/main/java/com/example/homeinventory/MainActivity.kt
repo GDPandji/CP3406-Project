@@ -30,6 +30,7 @@ import com.example.homeinventory.ui.InventoryScreen
 import com.example.homeinventory.viewmodel.SharedInventoryViewModel
 import com.example.homeinventory.ui.EditItemScreen
 import com.example.homeinventory.ui.screens.ItemDetailScreen
+import com.example.homeinventory.ui.screens.RoomLayoutScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -110,7 +111,7 @@ fun HomeInventoryApp() {
                 RoomScreen(
                     viewModel = sharedViewModel,
                     onRoomSelected = { roomId ->
-                    navController.navigate("${Screen.ItemDetail.name}/$roomId")
+                    navController.navigate("${Screen.RoomLayout}/$roomId")
                 })
             }
 
@@ -127,6 +128,14 @@ fun HomeInventoryApp() {
                     EditItemScreen(itemId = it, viewModel = sharedViewModel, navController = navController)
                 }
             }
+
+            composable("${Screen.RoomLayout}/{roomId}") { backStackEntry ->
+                val roomId = backStackEntry.arguments?.getString("roomId")?.toIntOrNull()
+                roomId?.let {
+                    RoomLayoutScreen(roomId = it, viewModel = sharedViewModel)
+                }
+            }
+
             composable(Screen.Inventory.name) {
                 InventoryScreen(viewModel = sharedViewModel, navController = navController)
             }

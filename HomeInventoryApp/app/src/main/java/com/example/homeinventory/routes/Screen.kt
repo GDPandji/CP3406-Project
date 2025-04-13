@@ -6,5 +6,6 @@ enum class Screen(val title: String) {
     Rooms("Rooms"),
     ItemDetail("Item Detail"),
     Inventory("inventory"),
-    EditItem("Edit Item")
+    EditItem("Edit Item"),
+    RoomLayout("Room Layout")
 }

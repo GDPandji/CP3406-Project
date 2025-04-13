@@ -36,4 +36,8 @@ interface RoomDao {
 
     @Update
     suspend fun update(room: RoomEntity)
+
+    @Query("SELECT * FROM items WHERE id = :itemId LIMIT 1")
+    suspend fun getItemByIdOnce(itemId: Int): Item?
+
 }

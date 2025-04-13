@@ -1,7 +1,9 @@
 package com.example.homeinventory.model;
 
 import android.database.Cursor;
+import android.os.CancellationSignal;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.collection.LongSparseArray;
 import androidx.room.CoroutinesRoom;
 import androidx.room.EntityDeletionOrUpdateAdapter;
@@ -15,6 +17,7 @@ import androidx.room.util.StringUtil;
 import androidx.sqlite.db.SupportSQLiteStatement;
 import java.lang.Class;
 import java.lang.Exception;
+import java.lang.Integer;
 import java.lang.Object;
 import java.lang.Override;
 import java.lang.String;
@@ -238,6 +241,98 @@ public final class RoomDao_Impl implements RoomDao {
     });
   }
 
+  @Override
+  public Object getItemByIdOnce(final int itemId, final Continuation<? super Item> arg1) {
+    final String _sql = "SELECT * FROM items WHERE id = ? LIMIT 1";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
+    int _argIndex = 1;
+    _statement.bindLong(_argIndex, itemId);
+    final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
+    return CoroutinesRoom.execute(__db, false, _cancellationSignal, new Callable<Item>() {
+      @Override
+      @Nullable
+      public Item call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
+          final int _cursorIndexOfDescription = CursorUtil.getColumnIndexOrThrow(_cursor, "description");
+          final int _cursorIndexOfRoomId = CursorUtil.getColumnIndexOrThrow(_cursor, "roomId");
+          final int _cursorIndexOfQuantity = CursorUtil.getColumnIndexOrThrow(_cursor, "quantity");
+          final int _cursorIndexOfCategory = CursorUtil.getColumnIndexOrThrow(_cursor, "category");
+          final int _cursorIndexOfImageUri = CursorUtil.getColumnIndexOrThrow(_cursor, "imageUri");
+          final int _cursorIndexOfIcon = CursorUtil.getColumnIndexOrThrow(_cursor, "icon");
+          final int _cursorIndexOfGridX = CursorUtil.getColumnIndexOrThrow(_cursor, "gridX");
+          final int _cursorIndexOfGridY = CursorUtil.getColumnIndexOrThrow(_cursor, "gridY");
+          final int _cursorIndexOfWidth = CursorUtil.getColumnIndexOrThrow(_cursor, "width");
+          final int _cursorIndexOfHeight = CursorUtil.getColumnIndexOrThrow(_cursor, "height");
+          final Item _result;
+          if (_cursor.moveToFirst()) {
+            final int _tmpId;
+            _tmpId = _cursor.getInt(_cursorIndexOfId);
+            final String _tmpName;
+            if (_cursor.isNull(_cursorIndexOfName)) {
+              _tmpName = null;
+            } else {
+              _tmpName = _cursor.getString(_cursorIndexOfName);
+            }
+            final String _tmpDescription;
+            if (_cursor.isNull(_cursorIndexOfDescription)) {
+              _tmpDescription = null;
+            } else {
+              _tmpDescription = _cursor.getString(_cursorIndexOfDescription);
+            }
+            final int _tmpRoomId;
+            _tmpRoomId = _cursor.getInt(_cursorIndexOfRoomId);
+            final int _tmpQuantity;
+            _tmpQuantity = _cursor.getInt(_cursorIndexOfQuantity);
+            final String _tmpCategory;
+            if (_cursor.isNull(_cursorIndexOfCategory)) {
+              _tmpCategory = null;
+            } else {
+              _tmpCategory = _cursor.getString(_cursorIndexOfCategory);
+            }
+            final String _tmpImageUri;
+            if (_cursor.isNull(_cursorIndexOfImageUri)) {
+              _tmpImageUri = null;
+            } else {
+              _tmpImageUri = _cursor.getString(_cursorIndexOfImageUri);
+            }
+            final String _tmpIcon;
+            if (_cursor.isNull(_cursorIndexOfIcon)) {
+              _tmpIcon = null;
+            } else {
+              _tmpIcon = _cursor.getString(_cursorIndexOfIcon);
+            }
+            final Integer _tmpGridX;
+            if (_cursor.isNull(_cursorIndexOfGridX)) {
+              _tmpGridX = null;
+            } else {
+              _tmpGridX = _cursor.getInt(_cursorIndexOfGridX);
+            }
+            final Integer _tmpGridY;
+            if (_cursor.isNull(_cursorIndexOfGridY)) {
+              _tmpGridY = null;
+            } else {
+              _tmpGridY = _cursor.getInt(_cursorIndexOfGridY);
+            }
+            final int _tmpWidth;
+            _tmpWidth = _cursor.getInt(_cursorIndexOfWidth);
+            final int _tmpHeight;
+            _tmpHeight = _cursor.getInt(_cursorIndexOfHeight);
+            _result = new Item(_tmpId,_tmpName,_tmpDescription,_tmpRoomId,_tmpQuantity,_tmpCategory,_tmpImageUri,_tmpIcon,_tmpGridX,_tmpGridY,_tmpWidth,_tmpHeight);
+          } else {
+            _result = null;
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+          _statement.release();
+        }
+      }
+    }, arg1);
+  }
+
   @NonNull
   public static List<Class<?>> getRequiredConverters() {
     return Collections.emptyList();
@@ -256,7 +351,7 @@ public final class RoomDao_Impl implements RoomDao {
       return;
     }
     final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
-    _stringBuilder.append("SELECT `id`,`name`,`description`,`roomId`,`quantity`,`category`,`imageUri`,`icon` FROM `items` WHERE `roomId` IN (");
+    _stringBuilder.append("SELECT `id`,`name`,`description`,`roomId`,`quantity`,`category`,`imageUri`,`icon`,`gridX`,`gridY`,`width`,`height` FROM `items` WHERE `roomId` IN (");
     final int _inputSize = _map.size();
     StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
     _stringBuilder.append(")");
@@ -283,6 +378,10 @@ public final class RoomDao_Impl implements RoomDao {
       final int _cursorIndexOfCategory = 5;
       final int _cursorIndexOfImageUri = 6;
       final int _cursorIndexOfIcon = 7;
+      final int _cursorIndexOfGridX = 8;
+      final int _cursorIndexOfGridY = 9;
+      final int _cursorIndexOfWidth = 10;
+      final int _cursorIndexOfHeight = 11;
       while (_cursor.moveToNext()) {
         final long _tmpKey;
         _tmpKey = _cursor.getLong(_itemKeyIndex);
@@ -325,7 +424,23 @@ public final class RoomDao_Impl implements RoomDao {
           } else {
             _tmpIcon = _cursor.getString(_cursorIndexOfIcon);
           }
-          _item_1 = new Item(_tmpId,_tmpName,_tmpDescription,_tmpRoomId,_tmpQuantity,_tmpCategory,_tmpImageUri,_tmpIcon);
+          final Integer _tmpGridX;
+          if (_cursor.isNull(_cursorIndexOfGridX)) {
+            _tmpGridX = null;
+          } else {
+            _tmpGridX = _cursor.getInt(_cursorIndexOfGridX);
+          }
+          final Integer _tmpGridY;
+          if (_cursor.isNull(_cursorIndexOfGridY)) {
+            _tmpGridY = null;
+          } else {
+            _tmpGridY = _cursor.getInt(_cursorIndexOfGridY);
+          }
+          final int _tmpWidth;
+          _tmpWidth = _cursor.getInt(_cursorIndexOfWidth);
+          final int _tmpHeight;
+          _tmpHeight = _cursor.getInt(_cursorIndexOfHeight);
+          _item_1 = new Item(_tmpId,_tmpName,_tmpDescription,_tmpRoomId,_tmpQuantity,_tmpCategory,_tmpImageUri,_tmpIcon,_tmpGridX,_tmpGridY,_tmpWidth,_tmpHeight);
           _tmpRelation.add(_item_1);
         }
       }

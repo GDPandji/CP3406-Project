@@ -1,6 +1,7 @@
 package com.example.homeinventory.viewmodel
 
 import android.app.Application
+import android.icu.text.ListFormatter.Width
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.homeinventory.data.AppDatabase
@@ -24,6 +25,15 @@ class SharedInventoryViewModel(application: Application) : AndroidViewModel(appl
     val uniqueCategories: StateFlow<List<String>> = allItems
         .map { items -> items.map { it.category }.distinct() }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    private val _itemWidth = MutableStateFlow(1)
+    private val _itemHeight = MutableStateFlow(1)
+
+    val itemWidth: StateFlow<Int> = _itemWidth
+    val itemHeight: StateFlow<Int> = _itemHeight
+
+    fun updateItemWidth(w: Int) { _itemWidth.value = w }
+    fun updateItemHeight(h: Int) { _itemHeight.value = h }
 
 
     // Rooms
@@ -130,7 +140,9 @@ class SharedInventoryViewModel(application: Application) : AndroidViewModel(appl
                     quantity = quantity,
                     category = category,
                     imageUri = imageUri,
-                    icon = _itemIcon.value // <- item emoji
+                    icon = _itemIcon.value,
+                    width = _itemWidth.value,
+                    height = _itemHeight.value// <- item emoji
                 )
             )
             clearItemFields()
@@ -163,6 +175,36 @@ class SharedInventoryViewModel(application: Application) : AndroidViewModel(appl
             }
         }
     }
+
+    // Layout Grid Coordinates
+    private val _selectedItemId = MutableStateFlow<Int?>(null)
+    val selectedItemId: StateFlow<Int?> = _selectedItemId
+
+    fun selectItemForPlacement(itemId: Int?) {
+        _selectedItemId.value = itemId
+    }
+
+    // Coordinate handling
+
+    fun selectItemForPlacement(itemId: Int) {
+        _selectedItemId.value = itemId
+    }
+
+    fun updateItemPosition(itemId: Int, x: Int?, y: Int?) {
+        viewModelScope.launch {
+            val item = itemDao.getItemById(itemId).firstOrNull()
+            item?.let {
+                itemDao.update(it.copy(gridX = x, gridY = y))
+            }
+        }
+    }
+
+    fun clearSelectedItem() {
+        _selectedItemId.value = null
+    }
+
+
+
 
     // ======================
     // Utilities
