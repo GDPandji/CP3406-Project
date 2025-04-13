@@ -1,0 +1,4 @@
+com.example.homeinventory.test.app-androidTest-0 C:\Users\Gerard\Documents\CP3406\CP3406-Project\HomeInventoryApp\app\build\generated\res\resValues\androidTest\debug
+com.example.homeinventory.test.app-mergeDebugAndroidTestResources-1 C:\Users\Gerard\Documents\CP3406\CP3406-Project\HomeInventoryApp\app\build\intermediates\incremental\debugAndroidTest\mergeDebugAndroidTestResources\merged.dir
+com.example.homeinventory.test.app-mergeDebugAndroidTestResources-2 C:\Users\Gerard\Documents\CP3406\CP3406-Project\HomeInventoryApp\app\build\intermediates\incremental\debugAndroidTest\mergeDebugAndroidTestResources\stripped.dir
+com.example.homeinventory.test.app-merged_res-3 C:\Users\Gerard\Documents\CP3406\CP3406-Project\HomeInventoryApp\app\build\intermediates\merged_res\debugAndroidTest

@@ -1,0 +1,30 @@
+[
+    {
+        "merged": "com.example.homeinventory.app-merged_res-57:/drawable_recipe_book.jpg.flat",
+        "source": "com.example.homeinventory.app-main-59:/drawable/recipe_book.jpg"
+    },
+    {
+        "merged": "com.example.homeinventory.app-merged_res-57:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "com.example.homeinventory.app-main-59:/drawable/ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "com.example.homeinventory.app-merged_res-57:/drawable_ic_launcher_background.xml.flat",
+        "source": "com.example.homeinventory.app-main-59:/drawable/ic_launcher_background.xml"
+    },
+    {
+        "merged": "com.example.homeinventory.app-merged_res-57:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "com.example.homeinventory.app-main-59:/mipmap-anydpi-v26/ic_launcher_round.xml"
+    },
+    {
+        "merged": "com.example.homeinventory.app-merged_res-57:/drawable_placeholder.jpg.flat",
+        "source": "com.example.homeinventory.app-main-59:/drawable/placeholder.jpg"
+    },
+    {
+        "merged": "com.example.homeinventory.app-merged_res-57:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "com.example.homeinventory.app-main-59:/mipmap-anydpi-v26/ic_launcher.xml"
+    },
+    {
+        "merged": "com.example.homeinventory.app-merged_res-57:/drawable_room.png.flat",
+        "source": "com.example.homeinventory.app-main-59:/drawable/room.png"
+    }
+]
