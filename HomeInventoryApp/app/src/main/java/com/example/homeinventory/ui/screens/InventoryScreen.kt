@@ -15,48 +15,57 @@ import com.example.homeinventory.model.Item
 import com.example.homeinventory.routes.Screen
 
 @Composable
-fun InventoryScreen(
-    viewModel: SharedInventoryViewModel = viewModel(),
-    navController: NavController
-) {
+fun InventoryScreen(viewModel: SharedInventoryViewModel = viewModel(), navController: NavController) {
     val items by viewModel.allItems.collectAsState(initial = emptyList())
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        item {
-            Text("Inventory", style = MaterialTheme.typography.headlineSmall)
-            Spacer(modifier = Modifier.height(16.dp))
-        }
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .padding(16.dp)) {
+        Text("Inventory", style = MaterialTheme.typography.headlineSmall)
+        Spacer(modifier = Modifier.height(16.dp))
 
-        items(items) { item ->
-            ItemCard(item = item, onEditClick = { selectedItem ->
-                navController.navigate("${Screen.EditItem.name}/${selectedItem.id}")
-            })
+        LazyColumn {
+            items(items) { item ->
+                ItemCard(
+                    item = item,
+                    onEditClick = { selectedItem ->
+                        navController.navigate("${Screen.EditItem.name}/${selectedItem.id}")
+                    },
+                    onDeleteClick = { selectedItem ->
+                        viewModel.deleteItem(selectedItem)
+                    }
+                )
+            }
         }
     }
 }
 
+
 @Composable
-fun ItemCard(item: Item, onEditClick: (Item) -> Unit) {
+fun ItemCard(item: Item, onEditClick: (Item) -> Unit, onDeleteClick: (Item) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onEditClick(item) },
-        elevation = CardDefaults.cardElevation(4.dp)
+            .padding(vertical = 4.dp)
+            .clickable { onEditClick(item) }
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
-            Text(text = "${item.icon ?: "📦"} ${item.name}", style = MaterialTheme.typography.titleMedium)
+            Text("Name: ${item.name}")
             Text("Description: ${item.description}")
-            Text("Room ID: ${item.roomId}")
+            Text("Room: ${item.roomId}")
             Text("Category: ${item.category}")
             Text("Quantity: ${item.quantity}")
+
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
+                TextButton(onClick = { onDeleteClick(item) }) {
+                    Text("Delete", color = MaterialTheme.colorScheme.error)
+                }
+            }
         }
     }
 }
+
 
 
 

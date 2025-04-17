@@ -41,8 +41,8 @@ fun AddItemScreen(
     val itemQuantity by viewModel.itemQuantity.collectAsState()
     val itemCategory by viewModel.itemCategory.collectAsState()
     val itemIcon by viewModel.itemIcon.collectAsState()
-    val itemWidth by viewModel.itemWidth.collectAsState()
-    val itemHeight by viewModel.itemHeight.collectAsState()
+    val widthText by viewModel.itemWidthText.collectAsState()
+    val heightText by viewModel.itemHeightText.collectAsState()
 
     var expanded by remember { mutableStateOf(false) }
     var showAddRoomDialog by remember { mutableStateOf(false) }
@@ -156,19 +156,21 @@ fun AddItemScreen(
 
         item {
             OutlinedTextField(
-                value = itemWidth.toString(),
-                onValueChange = { viewModel.updateItemWidth(it.toIntOrNull() ?: 1) },
+                value = widthText,
+                onValueChange = { viewModel.updateItemWidthText(it) },
                 label = { Text("Width (grid cells)") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
             )
         }
 
         item {
             OutlinedTextField(
-                value = itemHeight.toString(),
-                onValueChange = { viewModel.updateItemHeight(it.toIntOrNull() ?: 1) },
+                value = heightText,
+                onValueChange = { viewModel.updateItemHeightText(it) },
                 label = { Text("Height (grid cells)") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
             )
         }
 
@@ -253,32 +255,65 @@ fun AddItemScreen(
         }
     }
 
+    var newRoomRows by remember { mutableStateOf("6") }
+    var newRoomCols by remember { mutableStateOf("6") }
+
     if (showAddRoomDialog) {
         AlertDialog(
             onDismissRequest = { showAddRoomDialog = false },
             title = { Text("Add New Room") },
             text = {
-                OutlinedTextField(
-                    value = newRoomName,
-                    onValueChange = { newRoomName = it },
-                    label = { Text("Room Name") }
-                )
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(
+                        value = newRoomName,
+                        onValueChange = { newRoomName = it },
+                        label = { Text("Room Name") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    OutlinedTextField(
+                        value = newRoomRows,
+                        onValueChange = { newRoomRows = it },
+                        label = { Text("Rows") },
+                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    OutlinedTextField(
+                        value = newRoomCols,
+                        onValueChange = { newRoomCols = it },
+                        label = { Text("Columns") },
+                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
             },
             confirmButton = {
                 TextButton(onClick = {
-                    viewModel.addRoom(newRoomName)
-                    newRoomName = ""
-                    showAddRoomDialog = false
-                }) { Text("Add") }
+                    val rows = newRoomRows.toIntOrNull() ?: 6
+                    val cols = newRoomCols.toIntOrNull() ?: 6
+                    if (newRoomName.isNotBlank()) {
+                        viewModel.addRoom(newRoomName, rows, cols)
+                        newRoomName = ""
+                        newRoomRows = "6"
+                        newRoomCols = "6"
+                        showAddRoomDialog = false
+                    }
+                }) {
+                    Text("Add")
+                }
             },
             dismissButton = {
                 TextButton(onClick = {
-                    newRoomName = ""
                     showAddRoomDialog = false
-                }) { Text("Cancel") }
+                    newRoomName = ""
+                    newRoomRows = "6"
+                    newRoomCols = "6"
+                }) {
+                    Text("Cancel")
+                }
             }
         )
     }
+
 }
 
 

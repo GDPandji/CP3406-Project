@@ -23,11 +23,15 @@ fun RoomLayoutScreen(
     viewModel: SharedInventoryViewModel
 ) {
     val allItems by viewModel.allItems.collectAsState()
+    val allRooms by viewModel.allRooms.collectAsState()
     val placedItems = allItems.filter { it.roomId == roomId && it.gridX != null && it.gridY != null }
     val unplacedItems = allItems.filter { it.roomId == roomId && (it.gridX == null || it.gridY == null) }
     val selectedItemId by viewModel.selectedItemId.collectAsState()
-
     var showDetailItem by remember { mutableStateOf<Item?>(null) }
+
+    val room = allRooms.find { it.id == roomId }
+    val rows = room?.gridRows ?: 6
+    val cols = room?.gridCols ?: 6
 
     val scope = rememberCoroutineScope()
 
@@ -37,7 +41,8 @@ fun RoomLayoutScreen(
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text("Room Layout", style = MaterialTheme.typography.headlineSmall)
             Button(onClick = {
@@ -54,17 +59,19 @@ fun RoomLayoutScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         GridLayout(
-            rows = 6,
-            cols = 6,
+            rows = rows,
+            cols = cols,
             placedItems = placedItems,
             selectedItemId = selectedItemId,
-            onDrop = { itemId, x, y ->
-                scope.launch {
-                    viewModel.updateItemPosition(itemId, x, y)
-                    viewModel.clearSelectedItem()
+            onCellClicked = { x, y ->
+                selectedItemId?.let { itemId ->
+                    scope.launch {
+                        viewModel.updateItemPosition(itemId, x, y)
+                        viewModel.clearSelectedItem()
+                    }
                 }
             },
-            onPlacedItemClick = { item ->
+            onItemClicked = { item ->
                 showDetailItem = item
             }
         )
@@ -85,7 +92,6 @@ fun RoomLayoutScreen(
         }
     }
 
-    // Item detail dialog
     showDetailItem?.let { item ->
         AlertDialog(
             onDismissRequest = { showDetailItem = null },
@@ -115,45 +121,70 @@ fun GridLayout(
     cols: Int,
     placedItems: List<Item>,
     selectedItemId: Int?,
-    onDrop: (itemId: Int, x: Int, y: Int) -> Unit,
-    onPlacedItemClick: (Item) -> Unit
+    onCellClicked: (x: Int, y: Int) -> Unit,
+    onItemClicked: (Item) -> Unit
 ) {
-    val cellSize = 60.dp
-    val occupiedMap = mutableMapOf<Pair<Int, Int>, Item>()
+    val maxGridWidth = 300.dp
+    val maxGridHeight = 300.dp
 
-    // Track occupied cells
+    val cellWidth = remember(cols) {
+        (maxGridWidth / cols.toFloat()).coerceAtMost(60.dp)
+    }
+    val cellHeight = remember(rows) {
+        (maxGridHeight / rows.toFloat()).coerceAtMost(60.dp)
+    }
+
+    val grid = Array(rows) { arrayOfNulls<Item>(cols) }
+
     for (item in placedItems) {
-        val x = item.gridX ?: continue
-        val y = item.gridY ?: continue
-        for (dx in 0 until item.width) {
-            for (dy in 0 until item.height) {
-                occupiedMap[Pair(x + dx, y + dy)] = item
+        val startX = item.gridX ?: continue
+        val startY = item.gridY ?: continue
+        val width = item.width.coerceAtLeast(1)
+        val height = item.height.coerceAtLeast(1)
+
+        for (dy in 0 until height) {
+            for (dx in 0 until width) {
+                val x = startX + dx
+                val y = startY + dy
+                if (x in 0 until cols && y in 0 until rows) {
+                    grid[y][x] = item
+                }
             }
         }
     }
 
-    Column {
+    Column(
+        modifier = Modifier
+            .widthIn(max = maxGridWidth)
+            .heightIn(max = maxGridHeight)
+            .background(Color.Transparent)
+    ) {
         for (y in 0 until rows) {
             Row {
                 for (x in 0 until cols) {
-                    val position = Pair(x, y)
-                    val item = occupiedMap[position]
+                    val item = grid[y][x]
+                    val isTopLeft = item?.gridX == x && item.gridY == y
 
                     Box(
                         modifier = Modifier
-                            .size(cellSize)
-                            .padding(4.dp)
-                            .background(Color.LightGray)
+                            .width(cellWidth)
+                            .height(cellHeight)
+                            .padding(1.dp)
+                            .background(if (item != null) Color(0xFFD0F0C0) else Color.LightGray)
                             .clickable {
-                                if (selectedItemId != null && item == null) {
-                                    onDrop(selectedItemId, x, y)
-                                } else if (item != null) {
-                                    onPlacedItemClick(item)
+                                when {
+                                    item != null && isTopLeft -> onItemClicked(item)
+                                    item == null && selectedItemId != null -> onCellClicked(x, y)
                                 }
                             },
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(item?.icon ?: "")
+                        if (item != null) {
+                            Text(
+                                item.icon ?: "📦",
+                                color = if (isTopLeft) LocalContentColor.current else Color.Gray
+                            )
+                        }
                     }
                 }
             }

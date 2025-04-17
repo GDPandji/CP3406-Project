@@ -26,14 +26,18 @@ class SharedInventoryViewModel(application: Application) : AndroidViewModel(appl
         .map { items -> items.map { it.category }.distinct() }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    private val _itemWidth = MutableStateFlow(1)
-    private val _itemHeight = MutableStateFlow(1)
+    private val _itemWidthText = MutableStateFlow("1")
+    private val _itemHeightText = MutableStateFlow("1")
+    val itemWidthText: StateFlow<String> = _itemWidthText
+    val itemHeightText: StateFlow<String> = _itemHeightText
 
-    val itemWidth: StateFlow<Int> = _itemWidth
-    val itemHeight: StateFlow<Int> = _itemHeight
+    fun updateItemWidthText(newValue: String) {
+        _itemWidthText.value = newValue
+    }
 
-    fun updateItemWidth(w: Int) { _itemWidth.value = w }
-    fun updateItemHeight(h: Int) { _itemHeight.value = h }
+    fun updateItemHeightText(newValue: String) {
+        _itemHeightText.value = newValue
+    }
 
 
     // Rooms
@@ -130,8 +134,11 @@ class SharedInventoryViewModel(application: Application) : AndroidViewModel(appl
         category: String,
         imageUri: String?
     ) {
-        if (roomId == 0) return // Invalid room
+        if (roomId == 0) return
         viewModelScope.launch {
+            val width = itemWidthText.value.toIntOrNull() ?: 1
+            val height = itemHeightText.value.toIntOrNull() ?: 1
+
             itemDao.insert(
                 Item(
                     name = name,
@@ -141,11 +148,18 @@ class SharedInventoryViewModel(application: Application) : AndroidViewModel(appl
                     category = category,
                     imageUri = imageUri,
                     icon = _itemIcon.value,
-                    width = _itemWidth.value,
-                    height = _itemHeight.value// <- item emoji
+                    width = width,
+                    height = height
                 )
             )
             clearItemFields()
+        }
+    }
+
+
+    fun deleteItem(item: Item) {
+        viewModelScope.launch {
+            itemDao.delete(item)
         }
     }
 
@@ -159,12 +173,13 @@ class SharedInventoryViewModel(application: Application) : AndroidViewModel(appl
         return itemDao.getItemById(id)
     }
 
-    fun addRoom(name: String) {
+    fun addRoom(name: String, rows: Int, cols: Int) {
         viewModelScope.launch {
-            roomDao.insert(RoomEntity(name = name, icon = _roomIcon.value))
-            _roomIcon.value = "🛋️" // reset
+            roomDao.insert(RoomEntity(name = name, icon = _roomIcon.value, gridRows = rows, gridCols = cols))
+            _roomIcon.value = "🛋️"
         }
     }
+
 
     fun updateRoomIcon(roomId: Int, newIcon: String) {
         viewModelScope.launch {

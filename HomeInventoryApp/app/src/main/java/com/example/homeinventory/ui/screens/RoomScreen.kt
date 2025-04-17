@@ -58,22 +58,44 @@ fun RoomScreen(
     }
 
     // Add Room Dialog
+    var newRoomRows by remember { mutableStateOf("6") }
+    var newRoomCols by remember { mutableStateOf("6") }
+
     if (showAddRoomDialog) {
         AlertDialog(
             onDismissRequest = { showAddRoomDialog = false },
             title = { Text("Add New Room") },
             text = {
-                OutlinedTextField(
-                    value = newRoomName,
-                    onValueChange = { newRoomName = it },
-                    label = { Text("Room Name") }
-                )
+                Column {
+                    OutlinedTextField(
+                        value = newRoomName,
+                        onValueChange = { newRoomName = it },
+                        label = { Text("Room Name") }
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = newRoomRows,
+                        onValueChange = { newRoomRows = it },
+                        label = { Text("Grid Rows") },
+                        singleLine = true
+                    )
+                    OutlinedTextField(
+                        value = newRoomCols,
+                        onValueChange = { newRoomCols = it },
+                        label = { Text("Grid Columns") },
+                        singleLine = true
+                    )
+                }
             },
             confirmButton = {
                 TextButton(onClick = {
+                    val rows = newRoomRows.toIntOrNull() ?: 6
+                    val cols = newRoomCols.toIntOrNull() ?: 6
                     if (newRoomName.isNotBlank()) {
-                        viewModel.addRoom(newRoomName)
+                        viewModel.addRoom(newRoomName, rows, cols)
                         newRoomName = ""
+                        newRoomRows = "6"
+                        newRoomCols = "6"
                         showAddRoomDialog = false
                     }
                 }) {
@@ -83,6 +105,8 @@ fun RoomScreen(
             dismissButton = {
                 TextButton(onClick = {
                     newRoomName = ""
+                    newRoomRows = "6"
+                    newRoomCols = "6"
                     showAddRoomDialog = false
                 }) {
                     Text("Cancel")
@@ -90,6 +114,7 @@ fun RoomScreen(
             }
         )
     }
+
 
     // Edit Emoji Dialog
     if (showEditEmojiDialog && selectedRoomForEdit != null) {

@@ -45,7 +45,7 @@ public final class RoomDao_Impl implements RoomDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR ABORT INTO `RoomEntity` (`id`,`name`,`icon`) VALUES (nullif(?, 0),?,?)";
+        return "INSERT OR ABORT INTO `RoomEntity` (`id`,`name`,`icon`,`gridRows`,`gridCols`) VALUES (nullif(?, 0),?,?,?,?)";
       }
 
       @Override
@@ -62,13 +62,15 @@ public final class RoomDao_Impl implements RoomDao {
         } else {
           statement.bindString(3, entity.getIcon());
         }
+        statement.bindLong(4, entity.getGridRows());
+        statement.bindLong(5, entity.getGridCols());
       }
     };
     this.__updateAdapterOfRoomEntity = new EntityDeletionOrUpdateAdapter<RoomEntity>(__db) {
       @Override
       @NonNull
       protected String createQuery() {
-        return "UPDATE OR ABORT `RoomEntity` SET `id` = ?,`name` = ?,`icon` = ? WHERE `id` = ?";
+        return "UPDATE OR ABORT `RoomEntity` SET `id` = ?,`name` = ?,`icon` = ?,`gridRows` = ?,`gridCols` = ? WHERE `id` = ?";
       }
 
       @Override
@@ -85,7 +87,9 @@ public final class RoomDao_Impl implements RoomDao {
         } else {
           statement.bindString(3, entity.getIcon());
         }
-        statement.bindLong(4, entity.getId());
+        statement.bindLong(4, entity.getGridRows());
+        statement.bindLong(5, entity.getGridCols());
+        statement.bindLong(6, entity.getId());
       }
     };
   }
@@ -139,6 +143,8 @@ public final class RoomDao_Impl implements RoomDao {
           final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
           final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
           final int _cursorIndexOfIcon = CursorUtil.getColumnIndexOrThrow(_cursor, "icon");
+          final int _cursorIndexOfGridRows = CursorUtil.getColumnIndexOrThrow(_cursor, "gridRows");
+          final int _cursorIndexOfGridCols = CursorUtil.getColumnIndexOrThrow(_cursor, "gridCols");
           final List<RoomEntity> _result = new ArrayList<RoomEntity>(_cursor.getCount());
           while (_cursor.moveToNext()) {
             final RoomEntity _item;
@@ -156,7 +162,11 @@ public final class RoomDao_Impl implements RoomDao {
             } else {
               _tmpIcon = _cursor.getString(_cursorIndexOfIcon);
             }
-            _item = new RoomEntity(_tmpId,_tmpName,_tmpIcon);
+            final int _tmpGridRows;
+            _tmpGridRows = _cursor.getInt(_cursorIndexOfGridRows);
+            final int _tmpGridCols;
+            _tmpGridCols = _cursor.getInt(_cursorIndexOfGridCols);
+            _item = new RoomEntity(_tmpId,_tmpName,_tmpIcon,_tmpGridRows,_tmpGridCols);
             _result.add(_item);
           }
           return _result;
@@ -188,6 +198,8 @@ public final class RoomDao_Impl implements RoomDao {
             final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
             final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
             final int _cursorIndexOfIcon = CursorUtil.getColumnIndexOrThrow(_cursor, "icon");
+            final int _cursorIndexOfGridRows = CursorUtil.getColumnIndexOrThrow(_cursor, "gridRows");
+            final int _cursorIndexOfGridCols = CursorUtil.getColumnIndexOrThrow(_cursor, "gridCols");
             final LongSparseArray<ArrayList<Item>> _collectionItems = new LongSparseArray<ArrayList<Item>>();
             while (_cursor.moveToNext()) {
               final long _tmpKey;
@@ -216,7 +228,11 @@ public final class RoomDao_Impl implements RoomDao {
               } else {
                 _tmpIcon = _cursor.getString(_cursorIndexOfIcon);
               }
-              _tmpRoom = new RoomEntity(_tmpId,_tmpName,_tmpIcon);
+              final int _tmpGridRows;
+              _tmpGridRows = _cursor.getInt(_cursorIndexOfGridRows);
+              final int _tmpGridCols;
+              _tmpGridCols = _cursor.getInt(_cursorIndexOfGridCols);
+              _tmpRoom = new RoomEntity(_tmpId,_tmpName,_tmpIcon,_tmpGridRows,_tmpGridCols);
               final ArrayList<Item> _tmpItemsCollection;
               final long _tmpKey_1;
               _tmpKey_1 = _cursor.getLong(_cursorIndexOfId);

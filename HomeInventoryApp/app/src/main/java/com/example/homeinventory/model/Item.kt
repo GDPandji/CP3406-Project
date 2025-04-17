@@ -9,8 +9,11 @@ import androidx.room.Relation
 data class RoomEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val name: String,
-    val icon: String = "🛋️" // default emoji if none provided
+    val icon: String = "🛋️",
+    val gridRows: Int = 6,
+    val gridCols: Int = 6
 )
+
 
 @Entity(tableName = "items")
 data class Item(
